@@ -1,0 +1,130 @@
+Scripts for Removing new outlook. 
+
+Scripts are formatted in a detection/Remediation script set. This is due to Intune requiring detection scripts. We have these set to run in user/system context, It is noted. 
+
+Block New outlook Toggle
+
+Run as user - Yes
+64Bit Powershell - Yes
+
+#Detection
+
+$regPath = "HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General"
+$valueName = "HideNewOutlookToggle"
+$requiredValue = '1'
+
+if (Test-Path -Path $regPath) {
+    $key = Get-Item -Path $regPath
+    if ($key.GetValue($valueName) -ne $null) {
+        if ($key.GetValue($valueName) -eq $requiredValue) {
+            Write-Host "Registry key $regPath exists, entry $valueName exists, and value is set to $requiredValue"
+            exit 0
+        } else {
+            Write-Host "Registry key $regPath exists, entry $valueName exists but value does not match $requiredValue"
+            exit 1
+        }
+    } else {
+        Write-Host "Registry key $regPath exists, but entry $valueName does not exist"
+        exit 1
+    }
+} else {
+    Write-Host "Registry key $regPath does not exist"
+    exit 1
+}    
+
+
+#Remediation
+
+$regPath = "HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General"
+$valueName = "HideNewOutlookToggle"
+$requiredValue = '1'
+
+if (Test-Path -Path $regPath) {
+    $key = Get-Item -Path $regPath
+    if ($key.GetValue($valueName) -ne $null) {
+        if ($key.GetValue($valueName) -eq $requiredValue) {
+            Write-Host "Registry key $regPath exists, entry $valueName exists, and value is set to $requiredValue"
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General -Name "HideNewOutlookToggle" -Value 1 -Type DWord
+            exit 0
+        } else {
+            Write-Host "Registry key $regPath exists, entry $valueName exists but value does not match $requiredValue"
+            Set-ItemProperty -Path HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General -Name "HideNewOutlookToggle" -Value 1 -Type DWord
+            exit 0
+        }
+    } else {
+        Write-Host "Registry key $regPath exists, but entry $valueName does not exist"
+        Set-ItemProperty -Path HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General -Name "HideNewOutlookToggle" -Value 1 -Type DWord
+        exit 0
+    }
+} else {
+    Write-Host "Registry key $regPath does not exist"
+    New-Item -Path HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General
+    Set-ItemProperty -Path HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General -Name "HideNewOutlookToggle" -Value 1 -Type DWord
+
+    exit 0
+}    
+
+
+Block New Outlook OOBE Reg
+
+Run as user - No
+64 Bit - Yes or No
+
+#Detect
+
+$regPath = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\OutlookUpdate"
+
+
+if (Test-Path -Path $regPath) {
+    
+    Write-Host "Registry key $regPath does exist"
+    #exit 1
+    }
+    else {
+    Write-Host "Registry key $regPath does not exist"
+    #exit 0
+    }    
+
+#Remediation
+
+Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\OutlookUpdate"
+
+
+Remove Outlook app package
+
+Run as user - No
+64 bit - Yes or No
+
+#Detect
+
+$NewOutlookApp =  Get-AppxPackage | Sort-Object Name | Select Name | where { $_.Name -match "Microsoft.OutlookForWindows"}
+
+if ($NewOutlookApp.Name -match "Microsoft.OutlookForWindows")
+{
+    Write-Output $MyApp.Name
+    Write-Output "New Outlook is installed on this computer."
+    Exit 1
+}
+else
+{
+    Write-Output "New Outlook is Not installed on this computer."
+    Exit 0 
+}
+
+
+Remediation
+
+$NewOutlookApp =  Get-AppxPackage | Sort-Object Name | Select Name | where { $_.Name -match "Microsoft.OutlookForWindows"}
+
+if ($NewOutlookApp.Name -match "Microsoft.OutlookForWindows")
+{
+    Write-Output $MyApp.Name
+    Write-Output "New Outlook is installed on this computer."
+    Remove-AppxPackage -Package Microsoft.OutlookForWindows_1.2025.205.0_x64__8wekyb3d8bbwe -AllUsers -Verbose
+    #Exit 0
+}
+else
+{
+    Write-Output "New Outlook is Not installed on this computer."
+    #Exit 0 
+}
