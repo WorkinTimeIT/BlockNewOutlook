@@ -114,17 +114,16 @@ else
 
 Remediation
 
-$NewOutlookApp =  Get-AppxPackage | Sort-Object Name | Select Name | where { $_.Name -match "Microsoft.OutlookForWindows"}
+$NewOutlookApp = Get-AppxPackage -Name "*Microsoft.OutlookForWindows*"
 
-if ($NewOutlookApp.Name -match "Microsoft.OutlookForWindows")
+if ($NewOutlookApp)
 {
-    Write-Output $MyApp.Name
     Write-Output "New Outlook is installed on this computer."
-    Remove-AppxPackage -Package Microsoft.OutlookForWindows_1.2025.205.0_x64__8wekyb3d8bbwe -AllUsers -Verbose
-    #Exit 0
+    Remove-AppxPackage -Package $NewOutlookApp.packageFullname -AllUsers -Verbose
+    Exit 0
 }
 else
 {
     Write-Output "New Outlook is Not installed on this computer."
-    #Exit 0 
+    Exit 1
 }
