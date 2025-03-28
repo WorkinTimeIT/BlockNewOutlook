@@ -112,14 +112,14 @@ else
 }
 
 
-Remediation
+#Remediation
 
 $NewOutlookApp = Get-AppxPackage -Name "*Microsoft.OutlookForWindows*"
 
 if ($NewOutlookApp)
 {
     Write-Output "New Outlook is installed on this computer."
-    Remove-AppxPackage -Package $NewOutlookApp.packageFullname -AllUsers -Verbose
+    Remove-AppxPackage -Package $NewOutlookApp.PackageFullname -AllUsers -Verbose
     Exit 0
 }
 else
