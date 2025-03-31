@@ -96,12 +96,11 @@ Run as user - No
 64 bit - Yes or No
 
 #Detect
-
-$NewOutlookApp =  Get-AppxPackage | Sort-Object Name | Select Name | where { $_.Name -match "Microsoft.OutlookForWindows"}
+$NewOutlookApp = Get-AppxPackage -Name "*Microsoft.OutlookForWindows*"
 
 if ($NewOutlookApp.Name -match "Microsoft.OutlookForWindows")
 {
-    Write-Output $MyApp.Name
+    Write-Output $NewOutlookApp.PackageFullname
     Write-Output "New Outlook is installed on this computer."
     Exit 1
 }
